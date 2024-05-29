@@ -1,26 +1,11 @@
-name: formatter
-on: pull_request
-
+name: black-action
+on: [push, pull_request]
 jobs:
-  format:
-    if: github.event.pull_request.head.repo.full_name == github.repository
+  linter_name:
+    name: runner / black formatter
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
+      - uses: rickstaa/action-black@v1
         with:
-          ref: ${{ github.head_ref }}
-      - name: black
-        uses: lgeiger/black-action@v1.0.1
-        with:
-          args: .
-      - name: Check for modified files
-        id: git-check
-        run: echo "modified=$(if git diff-index --quiet HEAD --; then echo "false"; else echo "true"; fi)" >> $GITHUB_OUTPUT
-      - name: Push changes
-        if: steps.git-check.outputs.modified == 'true'
-        run: |
-          git config --global user.name 'CesarAP24'
-          git config --global user.email 'cesar.perales@utec.edu.com"
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          git commit -am "Automated changes"
-          git push
+          black_args: ". --check"
